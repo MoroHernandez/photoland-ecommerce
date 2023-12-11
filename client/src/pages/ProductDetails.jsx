@@ -5,8 +5,10 @@ import useFetch from '../hooks/useFetch';
 import RelatedProducts from '../components/RelatedProducts';
 
 import { CartContext } from '../context/CartContext';
+import { useContext } from 'react';
 
 const ProductDetails = () => {
+	const { addToCart } = useContext(CartContext);
 	const { id } = useParams();
 
 	const { data } = useFetch(`/products?populate=*&filters[id][$eq]=${id}`);
@@ -14,6 +16,8 @@ const ProductDetails = () => {
 	if (!data) {
 		return <div className='container mx-auto'>loading...</div>;
 	}
+
+	const categoryTitle = data[0].attributes.categories.data[0].attributes.title;
 
 	return (
 		<div className='mb-16 pt-44 lg:pt-[30px] xl:pt-0'>
@@ -37,14 +41,21 @@ const ProductDetails = () => {
 							{data[0].attributes.categories.data[0].attributes.title} cameras
 						</div>
 						<h2 className='h2 mb-4'>{data[0].attributes.title}</h2>
-						<p>{data[0].attributes.description}</p>
-						<div>
-							<div>${data[0].attributes.price}</div>
+						<p className='mb-12'>{data[0].attributes.description}</p>
+						<div className='flex items-center gap-x-8 '>
+							<div className='text-3xl text-accent font-semibold'>
+								${data[0].attributes.price}
+							</div>
+							<button
+								onClick={() => addToCart(data, id)}
+								className='btn btn-accent'
+							>
+								Add to cart
+							</button>
 						</div>
-						<button className='btn btn-accent'>Add to cart</button>
 					</div>
-					<RelatedProducts />
 				</div>
+				<RelatedProducts categoryTitle={categoryTitle} />
 			</section>
 		</div>
 	);
